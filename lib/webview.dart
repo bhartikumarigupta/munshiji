@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_plugin_openwhatsapp/flutter_plugin_openwhatsapp.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -72,21 +74,30 @@ class _MyWebViewState extends State<MyWebView> {
                 _controller.complete(webViewController);
               },
               navigationDelegate: (NavigationRequest request) async {
-                log('URL: ${request.url}');
                 if (request.url.startsWith("whatsapp://send/")) {
-                  log('WhatsApp URL detected: ${request.url}');
-                  if (await canLaunchUrl(
-                      convertWhatsAppLink(request.url) as Uri)) {
-                    log('Launching WhatsApp URL: ${convertWhatsAppLink(request.url)}');
-                    await launchUrl(convertWhatsAppLink(request.url) as Uri);
-                    return NavigationDecision.prevent;
+                  Uri uri = Uri.parse(request.url);
+
+                  String phoneNumber = uri.queryParameters['phone'] ?? "";
+                  String text = uri.queryParameters['text'] ?? "";
+
+                  String decodedText = Uri.decodeComponent(text);
+
+                  final flutterPlugin = FlutterPluginOpenwhatsapp();
+                  var platform = defaultTargetPlatform;
+                  if (platform == TargetPlatform.android) {
+                    String? result = await flutterPlugin.openWhatsApp(
+                      phoneNumber: '$phoneNumber',
+                      text: '$decodedText',
+                    );
+                    debugPrint('>>>: $result');
                   }
-                }
-                if (request.url.startsWith("tel:")) {
-                  log('Tel URL detected: ${request.url}');
-                  if (await canLaunchUrl(Uri.parse(request.url))) {
-                    log('Launching Tel URL: ${request.url}');
-                    await launchUrl(request.url as Uri);
+                  return NavigationDecision.prevent;
+                } else if (request.url.startsWith("tel:")) {
+                  Uri telUri = Uri.parse(request.url);
+                  log('Tel URL detected: ${telUri.toString()}');
+                  if (await canLaunchUrl(telUri)) {
+                    log('Launching Tel URL: ${telUri.toString()}');
+                    await launchUrl(telUri);
                     return NavigationDecision.prevent;
                   }
                 }

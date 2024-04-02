@@ -126,6 +126,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.1"
+  flutter_plugin_openwhatsapp:
+    dependency: "direct main"
+    description:
+      name: flutter_plugin_openwhatsapp
+      sha256: "93347f19cbefe115db366320dc797297db2fd74efb4e86833989d982a83b0836"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
